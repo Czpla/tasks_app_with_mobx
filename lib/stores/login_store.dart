@@ -4,9 +4,10 @@ part 'login_store.g.dart';
 class LoginStore = _LoginStoreBase with _$LoginStore;
 
 abstract class _LoginStoreBase with Store {
-  _LoginStoreBase() {
+ 
+   _LoginStoreBase() {
     autorun((_) {
-      print(isFormValid);
+      print(passwordVisibility);
     });
   }
 
@@ -21,6 +22,12 @@ abstract class _LoginStoreBase with Store {
 
   @action
   void setPassword(String value) => password = value;
+
+  @observable
+  bool passwordVisibility = false;
+
+  @action
+  void togglePasswordVisibility() => passwordVisibility = !passwordVisibility;
 
   @computed
   bool get isEmailValid => RegExp(
