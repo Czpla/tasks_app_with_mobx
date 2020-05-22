@@ -4,12 +4,6 @@ part 'login_store.g.dart';
 class LoginStore = _LoginStoreBase with _$LoginStore;
 
 abstract class _LoginStoreBase with Store {
- 
-   _LoginStoreBase() {
-    autorun((_) {
-      print(passwordVisibility);
-    });
-  }
 
   @observable
   String email = "";
@@ -26,8 +20,23 @@ abstract class _LoginStoreBase with Store {
   @observable
   bool passwordVisibility = false;
 
+  @observable
+  bool loading = false;
+
+  @observable
+  bool loggedIn = false;
+
   @action
   void togglePasswordVisibility() => passwordVisibility = !passwordVisibility;
+
+  Future<void> login() async {
+    loading = true;
+
+    await Future.delayed(Duration(seconds: 3));
+
+    loading = false;
+    loggedIn = true;
+  }
 
   @computed
   bool get isEmailValid => RegExp(
@@ -37,6 +46,7 @@ abstract class _LoginStoreBase with Store {
   @computed
   bool get isPasswordValid => password.length >= 6;
 
-  @computed 
-  bool get isFormValid => isEmailValid && isPasswordValid;
+  @computed
+  Function get loginPressed =>
+    (isEmailValid && isPasswordValid && !loading) ? login : null;
 }

@@ -23,12 +23,12 @@ mixin _$LoginStore on _LoginStoreBase, Store {
       (_$isPasswordValidComputed ??= Computed<bool>(() => super.isPasswordValid,
               name: '_LoginStoreBase.isPasswordValid'))
           .value;
-  Computed<bool> _$isFormValidComputed;
+  Computed<Function> _$loginPressedComputed;
 
   @override
-  bool get isFormValid =>
-      (_$isFormValidComputed ??= Computed<bool>(() => super.isFormValid,
-              name: '_LoginStoreBase.isFormValid'))
+  Function get loginPressed =>
+      (_$loginPressedComputed ??= Computed<Function>(() => super.loginPressed,
+              name: '_LoginStoreBase.loginPressed'))
           .value;
 
   final _$emailAtom = Atom(name: '_LoginStoreBase.email');
@@ -77,6 +77,36 @@ mixin _$LoginStore on _LoginStoreBase, Store {
     });
   }
 
+  final _$loadingAtom = Atom(name: '_LoginStoreBase.loading');
+
+  @override
+  bool get loading {
+    _$loadingAtom.reportRead();
+    return super.loading;
+  }
+
+  @override
+  set loading(bool value) {
+    _$loadingAtom.reportWrite(value, super.loading, () {
+      super.loading = value;
+    });
+  }
+
+  final _$loggedInAtom = Atom(name: '_LoginStoreBase.loggedIn');
+
+  @override
+  bool get loggedIn {
+    _$loggedInAtom.reportRead();
+    return super.loggedIn;
+  }
+
+  @override
+  set loggedIn(bool value) {
+    _$loggedInAtom.reportWrite(value, super.loggedIn, () {
+      super.loggedIn = value;
+    });
+  }
+
   final _$_LoginStoreBaseActionController =
       ActionController(name: '_LoginStoreBase');
 
@@ -119,9 +149,11 @@ mixin _$LoginStore on _LoginStoreBase, Store {
 email: ${email},
 password: ${password},
 passwordVisibility: ${passwordVisibility},
+loading: ${loading},
+loggedIn: ${loggedIn},
 isEmailValid: ${isEmailValid},
 isPasswordValid: ${isPasswordValid},
-isFormValid: ${isFormValid}
+loginPressed: ${loginPressed}
     ''';
   }
 }

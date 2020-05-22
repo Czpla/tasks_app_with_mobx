@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:teste_mobx/stores/login_store.dart';
 import 'package:teste_mobx/widgets/custom_text_field.dart';
 import 'package:teste_mobx/widgets/custom_icon_button.dart';
@@ -12,6 +13,23 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   LoginStore loginStore = LoginStore();
+
+  ReactionDisposer disposer;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    disposer = reaction(
+      (_) => loginStore.loggedIn,
+      (loggedIn) {
+        if(loggedIn) 
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => ListScreen())
+          );
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +47,15 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                CustomTextField(
+                Observer(builder: (_) {
+                  return CustomTextField(
                   hint: 'E-mail',
                   prefix: Icon(Icons.account_circle),
                   textInputType: TextInputType.emailAddress,
                   onChanged: loginStore.setEmail,
-                  enabled: true,
-                ),
+                  enabled: !loginStore.loading,
+                );
+                }),
                 const SizedBox(height: 16),
                 Observer(builder: (_) {
                     return CustomTextField(
@@ -43,10 +63,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       prefix: Icon(Icons.lock),
                       obscure: !loginStore.passwordVisibility,
                       onChanged: loginStore.setPassword,
-                      enabled: true,
+                      enabled: !loginStore.loading,
                       suffix: CustomIconButton(
                         radius: 32,
-                        iconData: Icons.visibility,
+                        iconData: loginStore.passwordVisibility ? Icons.visibility_off
+                         : Icons.visibility,
                         onTap: loginStore.togglePasswordVisibility,
                       ),
                     );
@@ -63,18 +84,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(32),
                       ),
-                      child: Text('Entrar'),
+                      child: loginStore.loading ? CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(Colors.white),
+                      ) 
+                      : Text('Entrar'),
                       color: Theme.of(context).primaryColor,
                       disabledColor:
                           Theme.of(context).primaryColor.withAlpha(100),
                       textColor: Colors.white,
-                      onPressed: loginStore.isFormValid
-                          ? () {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) => ListScreen()));
-                            }
-                          : null,
+                      onPressed: loginStore.loginPressed
                     ),
                   );
                 })
@@ -84,5 +102,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     ));
+  }
+
+  @override
+  void dispose() {
+    disposer();
+    super.dispose();
   }
 }
