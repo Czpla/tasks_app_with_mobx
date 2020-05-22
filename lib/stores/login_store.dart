@@ -36,6 +36,9 @@ abstract class _LoginStoreBase with Store {
 
     loading = false;
     loggedIn = true;
+
+    email = "";
+    password = "";
   }
 
   @computed
@@ -49,4 +52,9 @@ abstract class _LoginStoreBase with Store {
   @computed
   Function get loginPressed =>
     (isEmailValid && isPasswordValid && !loading) ? login : null;
+
+  @action
+  void logout() {
+    loggedIn = false;
+  }
 }
